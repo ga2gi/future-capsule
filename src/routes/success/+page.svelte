@@ -1,16 +1,19 @@
 <script>
-  import { confetti } from '@neoconfetti/svelte'; // Optional: if you want a celebration effect
-  import { fade, fly } from 'svelte/transition';
+  import { confetti } from '@neoconfetti/svelte';
+  import { fly } from 'svelte/transition';
 </script>
 
 <section class="success">
   <div class="confetti-container">
-    <div use:confetti={{ particleCount: 40, colors: ['#2563eb', '#6366f1', '#10b981'] }} />
+    <div use:confetti={{ particleCount: 40, colors: ['#2563eb', '#6366f1', '#10b981'] }}></div>
   </div>
 
   <div class="card" in:fly={{ y: 20, duration: 600 }}>
     <div class="icon-circle">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
     </div>
 
     <h1>Capsule Sealed & Stored</h1>
@@ -35,13 +38,6 @@
       <a href="/" class="btn-primary">Return Home</a>
       <a href="/create" class="btn-secondary">Write another one</a>
     </div>
-
-    <div class="share-section">
-      <p>Know someone else who'd love this?</p>
-      <button class="share-link" on:click={() => navigator.share({ title: 'FutureCapsule', url: window.location.origin })}>
-        Invite a friend to join
-      </button>
-    </div>
   </div>
 </section>
 
@@ -51,7 +47,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 70vh;
+    min-height: 80vh; /* Increased slightly for better centering */
     padding: 20px;
     text-align: center;
   }
@@ -153,27 +149,6 @@
   .btn-primary:hover {
     transform: translateY(-2px);
     background: #1d4ed8;
-  }
-
-  .share-section {
-    margin-top: 40px;
-    padding-top: 30px;
-    border-top: 1px solid #f3f4f6;
-  }
-
-  .share-section p {
-    font-size: 0.85rem;
-    color: #9ca3af;
-    margin-bottom: 10px;
-  }
-
-  .share-link {
-    background: none;
-    border: none;
-    color: #2563eb;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.9rem;
   }
 
   @media (max-width: 480px) {

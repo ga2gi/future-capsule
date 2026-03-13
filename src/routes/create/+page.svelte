@@ -1,6 +1,6 @@
 <script>
   import { supabase } from "$lib/supabase";
-  import { fade } from 'svelte/transition';
+  import { fade, fly } from 'svelte/transition';
 
   let email = "";
   let title = "";
@@ -13,19 +13,21 @@
   let isLoading = false;
   let errorMessage = "";
 
+  // Get today's date in YYYY-MM-DD format to prevent past-date selection
+  const today = new Date().toISOString().split('T')[0];
+
   async function uploadImage() {
     if (!imageFile) return null;
 
-    // Use a folder-based naming convention for better organization
     const fileExt = imageFile.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `capsules/${fileName}`;
 
     const { data, error } = await supabase.storage
       .from("visionboards")
       .upload(filePath, imageFile);
 
-    if (error) throw error;
+    if (error) throw new Error("Image upload failed: " + error.message);
 
     const { data: { publicUrl } } = supabase
       .storage
@@ -36,9 +38,8 @@
   }
 
   async function submitCapsule() {
-    // Basic validation
     if (!email || !delivery_date || !letter) {
-      errorMessage = "Please fill in your email, letter, and delivery date.";
+      errorMessage = "The letter, delivery date, and your email are essential.";
       return;
     }
 
@@ -53,7 +54,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          title,
+          title: title || "Untitled Capsule",
           letter,
           goals,
           prayer,
@@ -63,9 +64,10 @@
       });
 
       if (res.ok) {
-        window.location = "/success";
+        window.location.href = "/success";
       } else {
-        throw new Error("Failed to save capsule. Please try again.");
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to seal capsule.");
       }
     } catch (err) {
       console.error(err);
@@ -76,69 +78,84 @@
   }
 </script>
 
-<section class="form-container">
+<main in:fly={{ y: 20, duration: 800 }}>
   <header>
-    <h1>Create Your Future Capsule</h1>
-    <p>A gift for the person you are becoming.</p>
+    <h1>Future Capsule</h1>
+    <p>A message to the person you are becoming.</p>
   </header>
 
-  <div class="form-card">
+  <div class="envelope-content">
+    <div class="stamp">POSTAGE<br>PAID</div>
+
     <div class="input-group">
-      <label for="email">Email Address</label>
-      <input id="email" type="email" placeholder="Where should we send this?" bind:value={email} required>
+      <label for="email">To (Your Email)</label>
+      <input id="email" type="email" placeholder="email@example.com" bind:value={email} required />
     </div>
 
     <div class="input-group">
-      <label for="title">Capsule Title</label>
-      <input id="title" type="text" placeholder="e.g., My 30th Birthday Letter" bind:value={title}>
+      <label for="title">Subject/Title</label>
+      <input id="title" type="text" placeholder="e.g., Reflections at 25" bind:value={title} />
     </div>
 
     <div class="input-group">
-      <label for="letter">Letter to your future self</label>
-      <textarea id="letter" rows="6" placeholder="Dear future me..." bind:value={letter}></textarea>
+      <label for="letter">Dear Future Me,</label>
+      <textarea id="letter" rows="8" placeholder="Write your heart out..." bind:value={letter}></textarea>
     </div>
 
     <div class="grid-fields">
       <div class="input-group">
-        <label for="goals">Your Goals</label>
-        <textarea id="goals" rows="3" placeholder="What do you want to achieve?" bind:value={goals}></textarea>
+        <label for="goals">Ambitions & Goals</label>
+        <textarea id="goals" rows="3" placeholder="What will you have achieved?" bind:value={goals}></textarea>
       </div>
       <div class="input-group">
-        <label for="prayer">Prayer or Reflection</label>
-        <textarea id="prayer" rows="3" placeholder="A quiet thought or prayer..." bind:value={prayer}></textarea>
+        <label for="prayer">A Prayer or Wish</label>
+        <textarea id="prayer" rows="3" placeholder="Your hopes for the future..." bind:value={prayer}></textarea>
       </div>
     </div>
 
     <div class="grid-fields">
       <div class="input-group">
-        <label for="image">Vision Board Image</label>
-        <input id="image" type="file" accept="image/*" on:change={(e) => imageFile = e.target.files[0]}>
+        <label for="image">Attach a Vision (Image)</label>
+        <input id="image" type="file" accept="image/*" class="file-input" on:change={(e) => imageFile = e.target.files[0]} />
       </div>
       <div class="input-group">
         <label for="date">Delivery Date</label>
-        <input id="date" type="date" bind:value={delivery_date} required>
+        <input id="date" type="date" min={today} bind:value={delivery_date} required />
       </div>
     </div>
 
     {#if errorMessage}
-      <p class="error" transition:fade>{errorMessage}</p>
+      <div class="error" transition:fade>{errorMessage}</div>
     {/if}
 
     <button on:click={submitCapsule} disabled={isLoading}>
       {#if isLoading}
-        Creating your capsule...
+        Sealing the Vault...
       {:else}
-        Seal the Capsule
+        Seal Capsule
       {/if}
     </button>
   </div>
-</section>
+</main>
 
 <style>
-  .form-container {
+  main {
     max-width: 700px;
     margin: 40px auto;
-    padding: 0 20px;
+    background: white;
+    position: relative;
+    padding: 60px 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    
+    /* Airmail border effect */
+    border: 12px solid transparent;
+    border-image: repeating-linear-gradient(
+      -45deg,
+      #ef4444, #ef4444 20px,
+      #ffffff 20px, #ffffff 40px,
+      #3b82f6 40px, #3b82f6 60px,
+      #ffffff 60px, #ffffff 80px
+    ) 12;
   }
 
   header {
@@ -146,88 +163,115 @@
     margin-bottom: 40px;
   }
 
-  h1 { font-size: 2rem; color: #111827; margin-bottom: 8px; }
-  header p { color: #6b7280; }
+  h1 { 
+    font-size: 2.2rem; 
+    color: #0f172a; 
+    margin-bottom: 8px; 
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
 
-  .form-card {
-    background: white;
-    padding: 32px;
-    border-radius: 20px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  header p { color: #64748b; font-style: italic; }
+
+  .stamp {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 70px;
+    height: 85px;
+    border: 2px dashed #cbd5e1;
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 900;
+    color: #94a3b8;
+    transform: rotate(4deg);
+    line-height: 1.2;
   }
 
   .input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    margin-bottom: 24px;
   }
 
   label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #374151;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
   }
 
-  input, textarea {
-    padding: 12px 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 1rem;
+  input:not(.file-input), textarea {
+    padding: 10px 0;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    background: transparent;
+    font-size: 1.1rem;
     font-family: inherit;
-    transition: border-color 0.2s, ring 0.2s;
+    transition: all 0.3s ease;
+    border-radius: 0;
   }
 
   input:focus, textarea:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-bottom-color: #0f172a;
+  }
+
+  .file-input {
+    font-size: 0.9rem;
+    margin-top: 5px;
   }
 
   .grid-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 30px;
   }
 
   .error {
-    color: #dc2626;
+    color: #b91c1c;
     background: #fef2f2;
-    padding: 12px;
+    padding: 14px;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid #fee2e2;
   }
 
   button {
-    background: #2563eb;
+    background: #0f172a;
     color: white;
-    padding: 16px;
-    border-radius: 12px;
-    font-weight: 600;
+    padding: 18px;
     border: none;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    margin-top: 10px;
+    transition: all 0.2s;
+    width: 100%;
+    margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 
   button:hover:not(:disabled) {
-    background: #1d4ed8;
-  }
-
-  button:active:not(:disabled) {
-    transform: scale(0.98);
+    background: #334155;
+    letter-spacing: 0.2em;
   }
 
   button:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 
   @media (max-width: 600px) {
-    .grid-fields { grid-template-columns: 1fr; }
+    main { padding: 40px 20px; margin: 10px; border-width: 8px; }
+    .grid-fields { grid-template-columns: 1fr; gap: 0; }
+    .stamp { display: none; } /* Hide stamp on mobile to save space */
   }
 </style>

@@ -1,61 +1,98 @@
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-body{
-font-family: system-ui, -apple-system, sans-serif;
-background:#F8F5F0;
-color:#0F172A;
-line-height:1.6;
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8f5f0; /* Keeping your nice cream/off-white */
+  color: #0f172a;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-main{
-max-width:900px;
-margin:auto;
-padding:60px 20px;
+main {
+  max-width: 800px; /* Slightly narrower feels more "letter-like" */
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
-h1{
-font-size:40px;
-margin-bottom:20px;
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.02em; /* Tightens up modern headers */
+  color: #0f172a;
 }
 
-h2{
-font-size:28px;
-margin-bottom:16px;
+h1 {
+  font-size: clamp(2rem, 5vw, 2.5rem); /* Responsive: gets smaller on phones */
+  margin-bottom: 24px;
 }
 
-p{
-color:#4B5563;
-margin-bottom:20px;
+h2 {
+  font-size: 1.75rem;
+  margin-bottom: 16px;
 }
 
-button{
-background:#0F172A;
-color:white;
-padding:12px 22px;
-border:none;
-border-radius:8px;
-font-size:15px;
-cursor:pointer;
+p {
+  color: #4b5563;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
 }
 
-button:hover{
-background:#1E293B;
+/* Interactive Elements */
+button {
+  background: #0f172a;
+  color: white;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px; /* Softer corners look more modern */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-input,textarea{
-width:100%;
-padding:12px;
-margin-bottom:18px;
-border-radius:8px;
-border:1px solid #ddd;
-font-size:15px;
+button:hover {
+  background: #1e293b;
+  transform: translateY(-1px); /* Adds a "tactile" feel */
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
 }
 
-a{
-text-decoration:none;
-color:#0F172A;
+button:active {
+  transform: translateY(0);
+}
+
+/* Form Styling */
+input, textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05); /* Soft outer glow */
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: #0f172a;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
 }
